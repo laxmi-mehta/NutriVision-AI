@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Food Detection Result</title>
+</head>
+<body>
+    <h1>Detected Food: {{ food_name }}</h1>
+    <h2>Confidence: {{ confidence }}%</h2>
+
+    <h3>Nutritional Information:</h3>
+    <pre>{{ nutritional_info }}</pre>
+
+    <h3>Uploaded Image:</h3>
+    <img src="{{ image_url }}" alt="Uploaded Image" style="max-width: 500px;">
+</body>
+</html>

@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Logout</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 flex items-center justify-center h-screen">
+
+    <div class="bg-white shadow-lg rounded-lg p-8 w-full max-w-md text-center border border-gray-200">
+        <div class="flex justify-center mb-4">
+            <svg class="w-16 h-16 text-red-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3m0 0v3m0-3h3m-3 0H9m3 10a9 9 0 100-18 9 9 0 000 18z"></path>
+            </svg>
+        </div>
+        <h1 class="text-2xl font-semibold text-gray-800 mb-3">Are you sure you want to logout?</h1>
+        <p class="text-gray-600 mb-6">You will need to log in again to access your account.</p>
+        
+        <form method="POST" action="{% url 'logout' %}">
+            {% csrf_token %}
+            <button type="submit" class="w-full bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition-all duration-300">
+                Yes, Logout
+            </button>
+            <a href="{% url 'dashboard' %}" class="mt-4 w-full block bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition-all duration-300">
+                Cancel
+            </a>
+        </form>
+    </div>
+
+</body>
+</html>

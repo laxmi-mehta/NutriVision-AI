@@ -1,0 +1,687 @@
+{% extends 'base.html' %} {% load static %} {% block content %}  
+
+<!doctype html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.tailwindcss.com"></script>
+  {% comment %} <link href='{% static 'css/style.css' %}' rel='stylesheet'/>  {% endcomment %}
+</head>
+
+<style>
+  
+    /* Color Palette */
+    :root {
+     --backcolor:orange-500; /* White */
+    --forecolor: #333333; /* Dark Gray */
+    }
+
+   
+   {% comment %} Chatbot css code {% endcomment %}
+   .chatbot-icon {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 60px;
+    height: 60px;
+    background-color: #4CAF50;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    font-size: 24px;
+  }
+  .chatbot {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 350px;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    display: none;
+    flex-direction: column;
+    overflow: hidden;
+    z-index: 10;
+  }
+  .chat-header {
+    background-color: #4CAF50;
+    color: #fff;
+    padding: 10px;
+    text-align: center;
+    font-size: 18px;
+    position: relative;
+  }
+  .chat-header .menu-toggle {
+    position: absolute;
+    top: 10px;
+    right: 55px;
+    background-color: #fff;
+    color: #4CAF50;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+  }
+  .chat-header .menu-toggle:hover {
+    background-color: #eaeaea;
+  }
+  .chat-body {
+    padding: 10px;
+    height: 300px;
+    overflow-y: auto;
+  }
+  .chat-input {
+    display: flex;
+    border-top: 1px solid #ccc;
+  }
+  .chat-input input {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    outline: none;
+  }
+  .chat-input button {
+    background-color: #4CAF50;
+    color: #fff;
+    border: none;
+    padding: 10px 15px;
+    cursor: pointer;
+  }
+  .chat-input button:hover {
+    background-color: #45a049;
+  }
+  .chat-header .cancel-button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: #fff;
+    color: #4CAF50;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+  }
+  .chat-header .cancel-button:hover {
+    background-color: #eaeaea;
+  }
+  .menu {
+    display: none;
+    background-color: #f4f4f9;
+    border-top: 1px solid #ccc;
+    padding: 10px;
+    height: 300px;
+    overflow-y: auto;
+  }
+  .menu.active {
+    display: block;
+  }
+  .menu h3 {
+    margin-top: 0;
+    font-size: 16px;
+    text-align: center;
+  }
+  .menu ul {
+    list-style: none;
+    padding: 0;
+  }
+  .menu ul li {
+    padding: 8px 10px;
+    cursor: pointer;
+    border-bottom: 1px solid #ccc;
+  }
+  .menu ul li:hover {
+    background-color: #eaeaea;
+  } 
+
+
+    /* Add this CSS to your styles */
+    @keyframes slide-left {
+      0% {
+        transform: translateX(100%); /* Start from right */
+      }
+      100% {
+        transform: translateX(-100%); /* Move to left */
+      }
+    }
+    
+    .animate-slide-left {
+      animation: slide-left 10s linear infinite;
+    }
+    
+    .quote-container {
+      position: relative;
+      overflow: hidden;
+      height: 70px; /* Adjust this as per your need */
+    }
+    
+    .quote-content {
+      position: absolute;
+      width: 100%;
+      white-space: nowrap; /* Prevent line breaks */
+      animation: slide-left 30s linear infinite; /* Move from right to left */
+    }
+      
+</style>
+
+<body>
+ 
+       <!-- Chatbot Trigger Button -->
+      <div class="chatbot-icon" id="chatbot-icon">💬</div>
+  <div class="chatbot" id="chatbot">
+    <div class="chat-header">
+      NutriBot
+      <button class="menu-toggle" id="menu-toggle1">Menu</button>
+      <button class="cancel-button" id="cancel-button">✖</button>
+    </div>
+    <div class="chat-body" id="chat-body">
+      <div>Hi! I'm NutriBot. How can I assist you today?</div>
+    </div>
+    <div class="chat-input">
+      <input type="text" id="user-input" placeholder="Type your question here...">
+      <button onclick="handleUserInput()">Send</button>
+    </div>
+    <div class="menu" id="menu">
+      <h3>Frequently Asked Questions</h3>
+      <ul id="menu-list"></ul>
+    </div>
+  </div>
+
+
+   {% comment %} Quotes Section {% endcomment %}
+   <section class="w-fullflex justify-center items-center">
+    <div class="quote-container">
+        <div class="quote-content" id="quoteContainer">
+            <p class="quote-text text-lg text-black mb-3" id="quoteText"></p>
+            <p class="author-text text-2xl text-center text-black" id="authorText"></p>
+        </div>
+    </div>
+</section>      
+
+
+        {% comment %} /* Hero Section */ {% endcomment %}
+        <section class="dark:bg-backcolor">
+          <div class="grid max-w-screen-xl px-4 py-8 mx-auto lg:gap-8 xl:gap-0 lg:py-16 lg:grid-cols-12">
+            <div class="mr-auto place-self-center lg:col-span-7">
+              <h6 class="mb-4 text-4xl font-extrabold tracking-tight leading-none text-forecolor md:text-5xl lg:text-6xl dark:text-forecolor animate-wiggle animate-once">#nutrition tracking web application</h6>
+              <h1 class="max-w-2xl mb-4 text-4xl font-extrabold tracking-tight leading-none md:text-5xl xl:text-6xl dark:forecolor">The fastest way to track what you eat</h1>
+              <p class="max-w-2xl mb-6 font-light text-forecolor lg:mb-8 md:text-lg lg:text-xl dark:text-gray-600">NutriVision is the first app where you can take a picture of any meal and get an accurate calorie count and nutrition in seconds.</p>
+              
+              <a href="{% url 'stepsStart' %}" class="inline-flex items-center justify-center px-5 py-3 text-base font-medium text-center text-forecolor bg-white hover:bg-transparent hover:text-white border border-gray-300 rounded-lg focus:ring-4 focus:ring-gray-100 dark:border-gray-700 dark:hover:bg-orange-500 dark:focus:ring-gray-800">
+                Start Today
+              </a>
+               
+              <a href="{% url 'findhotel' %}" class="inline-flex items-center justify-center px-5 py-3 text-base font-medium text-center text-forecolor bg-white hover:bg-transparent hover:text-white border border-gray-300 rounded-lg focus:ring-4 focus:ring-gray-100 dark:border-gray-700 dark:hover:bg-orange-500 dark:focus:ring-gray-800">
+                Find Hotel
+              </a>
+            </div>
+            <div class="hidden lg:mt-0 lg:col-span-4 lg:flex">
+              <img src="https://www.snapcalorie.com/images/Animation.gif" alt="mockup">
+            </div>
+          </div>
+        </section>
+
+<br><br><br>
+
+{% comment %} Feature Section1 {% endcomment %}
+<section>
+    <div class="max-w-6xl mx-auto font-[sans-serif]">
+        <h2 class="text-black sm:text-4xl text-2xl font-extrabold text-center mb-16">Discover Our Exclusive Features</h2>
+        <div class="grid lg:grid-cols-3 md:grid-cols-2 gap-12">
+          <div class="text-center">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="#007bff" class="w-8 mb-6 inline-block" viewBox="0 0 32 32">
+              <path d="M28.068 12h-.128a.934.934 0 0 1-.864-.6.924.924 0 0 1 .2-1.01l.091-.091a2.938 2.938 0 0 0 0-4.147l-1.511-1.51a2.935 2.935 0 0 0-4.146 0l-.091.091A.956.956 0 0 1 20 4.061v-.129A2.935 2.935 0 0 0 17.068 1h-2.136A2.935 2.935 0 0 0 12 3.932v.129a.956.956 0 0 1-1.614.668l-.086-.091a2.935 2.935 0 0 0-4.146 0l-1.516 1.51a2.938 2.938 0 0 0 0 4.147l.091.091a.935.935 0 0 1 .185 1.035.924.924 0 0 1-.854.579h-.128A2.935 2.935 0 0 0 1 14.932v2.136A2.935 2.935 0 0 0 3.932 20h.128a.934.934 0 0 1 .864.6.924.924 0 0 1-.2 1.01l-.091.091a2.938 2.938 0 0 0 0 4.147l1.51 1.509a2.934 2.934 0 0 0 4.147 0l.091-.091a.936.936 0 0 1 1.035-.185.922.922 0 0 1 .579.853v.129A2.935 2.935 0 0 0 14.932 31h2.136A2.935 2.935 0 0 0 20 28.068v-.129a.956.956 0 0 1 1.614-.668l.091.091a2.935 2.935 0 0 0 4.146 0l1.511-1.509a2.938 2.938 0 0 0 0-4.147l-.091-.091a.935.935 0 0 1-.185-1.035.924.924 0 0 1 .854-.58h.128A2.935 2.935 0 0 0 31 17.068v-2.136A2.935 2.935 0 0 0 28.068 12ZM29 17.068a.933.933 0 0 1-.932.932h-.128a2.956 2.956 0 0 0-2.083 5.028l.09.091a.934.934 0 0 1 0 1.319l-1.511 1.509a.932.932 0 0 1-1.318 0l-.09-.091A2.957 2.957 0 0 0 18 27.939v.129a.933.933 0 0 1-.932.932h-2.136a.933.933 0 0 1-.932-.932v-.129a2.951 2.951 0 0 0-5.028-2.082l-.091.091a.934.934 0 0 1-1.318 0l-1.51-1.509a.934.934 0 0 1 0-1.319l.091-.091A2.956 2.956 0 0 0 4.06 18h-.128A.933.933 0 0 1 3 17.068v-2.136A.933.933 0 0 1 3.932 14h.128a2.956 2.956 0 0 0 2.083-5.028l-.09-.091a.933.933 0 0 1 0-1.318l1.51-1.511a.932.932 0 0 1 1.318 0l.09.091A2.957 2.957 0 0 0 14 4.061v-.129A.933.933 0 0 1 14.932 3h2.136a.933.933 0 0 1 .932.932v.129a2.956 2.956 0 0 0 5.028 2.082l.091-.091a.932.932 0 0 1 1.318 0l1.51 1.511a.933.933 0 0 1 0 1.318l-.091.091A2.956 2.956 0 0 0 27.94 14h.128a.933.933 0 0 1 .932.932Z" data-original="#000000" />
+              <path d="M16 9a7 7 0 1 0 7 7 7.008 7.008 0 0 0-7-7Zm0 12a5 5 0 1 1 5-5 5.006 5.006 0 0 1-5 5Z" data-original="#000000" />
+            </svg>
+            <h3 class="text-black text-2xl font-semibold mb-3">Smart</h3>
+            <p class="text-gray-600 text-sm">Tailor our product to suit your needs Tailor our product to suit your needs.</p>
+          </div>
+  
+          <div class="text-center">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="#007bff" class="w-8 mb-6 inline-block" viewBox="0 0 682.667 682.667">
+              <defs>
+                <clipPath id="a" clipPathUnits="userSpaceOnUse">
+                  <path d="M0 512h512V0H0Z" data-original="#000000" />
+                </clipPath>
+              </defs>
+              <g fill="none" stroke="#007bff" stroke-linecap="round" stroke-linejoin="round" stroke-miterlimit="10" stroke-width="40" clip-path="url(#a)" transform="matrix(1.33 0 0 -1.33 0 682.667)">
+                <path d="M256 492 60 410.623v-98.925C60 183.674 137.469 68.38 256 20c118.53 48.38 196 163.674 196 291.698v98.925z" data-original="#000000" />
+                <path d="M178 271.894 233.894 216 334 316.105" data-original="#000000" />
+              </g>
+            </svg>
+            <h3 class="text-black text-2xl font-semibold mb-3">Simple</h3>
+            <p class="text-gray-600 text-sm">Your data is protected by the latest security measures.</p>
+          </div>
+  
+          <div class="text-center">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="#007bff" class="w-8 mb-6 inline-block" viewBox="0 0 512.001 512.001">
+              <path d="M271.029 0c-33.091 0-61 27.909-61 61s27.909 61 61 61 60-27.909 60-61-26.909-61-60-61zm66.592 122c-16.485 18.279-40.096 30-66.592 30-26.496 0-51.107-11.721-67.592-30-14.392 15.959-23.408 36.866-23.408 60v15c0 8.291 6.709 15 15 15h151c8.291 0 15-6.709 15-15v-15c0-23.134-9.016-44.041-23.408-60zM144.946 460.404 68.505 307.149c-7.381-14.799-25.345-20.834-40.162-13.493l-19.979 9.897c-7.439 3.689-10.466 12.73-6.753 20.156l90 180c3.701 7.423 12.704 10.377 20.083 6.738l19.722-9.771c14.875-7.368 20.938-25.417 13.53-40.272zM499.73 247.7c-12.301-9-29.401-7.2-39.6 3.9l-82 100.8c-5.7 6-16.5 9.6-22.2 9.6h-69.901c-8.401 0-15-6.599-15-15s6.599-15 15-15h60c16.5 0 30-13.5 30-30s-13.5-30-30-30h-78.6c-7.476 0-11.204-4.741-17.1-9.901-23.209-20.885-57.949-30.947-93.119-22.795-19.528 4.526-32.697 12.415-46.053 22.993l-.445-.361-21.696 19.094L174.28 452h171.749c28.2 0 55.201-13.5 72.001-36l87.999-126c9.9-13.201 7.2-32.399-6.299-42.3z" data-original="#000000" />
+            </svg>
+            <h3 class="text-black text-2xl font-semibold mb-3">Free And Open Source</h3>
+            <p class="text-gray-600 text-sm">Tailor our product to suit your needs 24/7 customer support for all your inquiries.</p>
+          </div>
+  
+          <div class="text-center">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="#007bff" class="w-8 mb-6 inline-block" viewBox="0 0 24 24">
+              <g fill-rule="evenodd" clip-rule="evenodd">
+                <path d="M17.03 8.97a.75.75 0 0 1 0 1.06l-4.2 4.2a.75.75 0 0 1-1.154-.114l-1.093-1.639L8.03 15.03a.75.75 0 0 1-1.06-1.06l3.2-3.2a.75.75 0 0 1 1.154.114l1.093 1.639L15.97 8.97a.75.75 0 0 1 1.06 0z" data-original="#000000" />
+                <path d="M13.75 9.5a.75.75 0 0 1 .75-.75h2a.75.75 0 0 1 .75.75v2a.75.75 0 0 1-1.5 0v-1.25H14.5a.75.75 0 0 1-.75-.75z" data-original="#000000" />
+                <path d="M3.095 3.095C4.429 1.76 6.426 1.25 9 1.25h6c2.574 0 4.57.51 5.905 1.845C22.24 4.429 22.75 6.426 22.75 9v6c0 2.574-.51 4.57-1.845 5.905C19.571 22.24 17.574 22.75 15 22.75H9c-2.574 0-4.57-.51-5.905-1.845C1.76 19.571 1.25 17.574 1.25 15V9c0-2.574.51-4.57 1.845-5.905zm1.06 1.06C3.24 5.071 2.75 6.574 2.75 9v6c0 2.426.49 3.93 1.405 4.845.916.915 2.419 1.405 4.845 1.405h6c2.426 0 3.93-.49 4.845-1.405.915-.916 1.405-2.419 1.405-4.845V9c0-2.426-.49-3.93-1.405-4.845C18.929 3.24 17.426 2.75 15 2.75H9c-2.426 0-3.93.49-4.845 1.405z" data-original="#000000" />
+              </g>
+            </svg>
+            <h3 class="text-black text-2xl font-semibold mb-3">Free And Open Source</h3>
+            <p class="text-gray-600 text-sm">Experience blazing-fast performance with our product.</p>
+          </div>
+  
+          <div class="text-center">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="#007bff" class="w-8 mb-6 inline-block" viewBox="0 0 504.69 504.69">
+              <path d="M252.343 262.673c-49.32 0-89.447-40.127-89.447-89.447s40.127-89.447 89.447-89.447 89.447 40.127 89.447 89.447-40.121 89.447-89.447 89.447zm0-158.235c-37.926 0-68.787 30.861-68.787 68.787s30.861 68.787 68.787 68.787 68.787-30.861 68.787-68.787-30.855-68.787-68.787-68.787z" data-original="#000000" />
+              <path d="M391.787 405.309c-5.645 0-10.253-4.54-10.325-10.201-.883-70.306-58.819-127.503-129.15-127.503-49.264 0-93.543 27.405-115.561 71.52-8.724 17.473-13.269 36.31-13.517 55.988-.072 5.702-4.757 10.273-10.459 10.201s-10.273-4.757-10.201-10.459c.289-22.814 5.568-44.667 15.691-64.955 25.541-51.164 76.907-82.95 134.047-82.95 81.581 0 148.788 66.349 149.81 147.905.072 5.702-4.494 10.392-10.201 10.459-.046-.005-.087-.005-.134-.005z" data-original="#000000" />
+              <path d="M252.343 463.751c-116.569 0-211.408-94.834-211.408-211.408 0-116.569 94.839-211.408 211.408-211.408 116.574 0 211.408 94.839 211.408 211.408 0 116.574-94.834 211.408-211.408 211.408zm0-402.156c-105.18 0-190.748 85.568-190.748 190.748s85.568 190.748 190.748 190.748 190.748-85.568 190.748-190.748S357.523 61.595 252.343 61.595zM71.827 90.07 14.356 32.599c-4.034-4.034-4.034-10.573 0-14.607 4.029-4.034 10.573-4.034 14.607 0l57.466 57.471c4.034 4.034 3.951 10.49 0 14.607-3.792 3.951-11.039 3.698-14.602 0z" data-original="#000000" />
+              <path d="M14.717 92.254a10.332 10.332 0 0 1-10.299-9.653L.023 15.751a10.317 10.317 0 0 1 2.929-7.908 10.2 10.2 0 0 1 7.851-3.089L77.56 7.796c5.697.258 10.108 5.093 9.85 10.79s-5.041 10.154-10.79 9.85l-55.224-2.521 3.641 55.327c.377 5.692-3.936 10.614-9.628 10.986a7.745 7.745 0 0 1-.692.026zm403.541-2.184c-4.256-3.796-4.034-10.573 0-14.607l58.116-58.116c4.034-4.034 10.573-4.034 14.607 0s4.034 10.573 0 14.607L432.864 90.07c-4.085 3.951-9.338 4.7-14.606 0z" data-original="#000000" />
+              <path d="M489.974 92.254a9.85 9.85 0 0 1-.687-.021c-5.697-.372-10.01-5.294-9.633-10.986l3.641-55.327-55.224 2.515c-5.511.238-10.526-4.147-10.79-9.85-.258-5.702 4.153-10.531 9.85-10.79l66.757-3.042c2.934-.134 5.79.992 7.851 3.089s3.12 4.974 2.929 7.908l-4.401 66.85c-.361 5.465-4.896 9.654-10.293 9.654zM11.711 489.339c-3.791-4.266-4.034-10.573 0-14.607l60.115-60.11c4.029-4.034 10.578-4.034 14.607 0 4.034 4.034 4.034 10.573 0 14.607l-60.115 60.11c-3.827 3.884-11.156 3.884-14.607 0z" data-original="#000000" />
+              <path d="M10.327 499.947a10.33 10.33 0 0 1-7.376-3.104 10.312 10.312 0 0 1-2.929-7.902l4.401-66.85c.372-5.697 5.191-10.036 10.986-9.633 5.692.377 10.005 5.294 9.628 10.986l-3.641 55.332 55.224-2.515c5.645-.191 10.531 4.153 10.79 9.85.258 5.697-4.153 10.526-9.85 10.79l-66.763 3.037c-.155.004-.31.009-.47.009zm465.639-13.01-57.708-57.708c-4.034-4.034-4.034-10.573 0-14.607s10.573-4.034 14.607 0l57.708 57.708c4.034 4.034 3.962 10.5 0 14.607-3.817 3.951-10.062 3.951-14.607 0z" data-original="#000000" />
+              <path d="M494.359 499.947c-.155 0-.315-.005-.47-.01l-66.757-3.042c-5.702-.263-10.108-5.088-9.85-10.79.263-5.702 5.113-9.984 10.79-9.85l55.219 2.515-3.641-55.332c-.372-5.692 3.941-10.609 9.633-10.986 5.625-.398 10.609 3.946 10.986 9.633l4.401 66.85a10.33 10.33 0 0 1-2.929 7.902 10.323 10.323 0 0 1-7.382 3.11z" data-original="#000000" />
+            </svg>
+            <h3 class="text-black text-2xl font-semibold mb-3">Security</h3>
+            <p class="text-gray-600 text-sm">Tailor our product to suit your needs Expand your reach with our global network.</p>
+          </div>
+  
+          <div class="text-center">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="#007bff" class="w-8 mb-6 inline-block" viewBox="0 0 682.667 682.667">
+              <defs>
+                <clipPath id="a" clipPathUnits="userSpaceOnUse">
+                  <path d="M0 512h512V0H0Z" data-original="#000000" />
+                </clipPath>
+              </defs>
+              <g fill="none" stroke="#007bff" stroke-miterlimit="10" stroke-width="30" clip-path="url(#a)" transform="matrix(1.33 0 0 -1.33 0 682.667)">
+                <path d="M226 15v60c0 16.568-13.432 30-30 30H76c-16.568 0-30-13.432-30-30V15Zm-45 165c0-24.853-20.147-45-45-45s-45 20.147-45 45 20.147 45 45 45 45-20.147 45-45ZM466 15v60c0 16.568-13.432 30-30 30H316c-16.568 0-30-13.432-30-30V15Zm-45 165c0-24.853-20.147-45-45-45s-45 20.147-45 45 20.147 45 45 45 45-20.147 45-45Zm-75 167v-50.294L286 347h-60.002L166 296.706V347h-15c-41.421 0-75 33.579-75 75s33.579 75 75 75h210c41.421 0 75-33.579 75-75s-33.579-75-75-75Zm-105 75h30m-90 0h30m90 0h30" data-original="#000000" />
+              </g>
+            </svg>
+            <h3 class="text-black text-2xl font-semibold mb-3">Performance</h3>
+            <p class="text-gray-600 text-sm">Tailor our product to suit your needs Seamless communication for your team.</p>
+          </div>
+        </div>
+      </div>
+</section>
+
+<section class="improved-section bg-gray-800">
+  <div class="container mx-auto px-6 lg:px-28 py-16">
+    <div class="flex flex-col lg:flex-row items-center">
+      <!-- Image Section -->
+      <div class="relative w-full lg:w-1/4 mb-6 lg:mb-0">
+        <img alt="A bowl of fresh salad with various vegetables, nuts, and a poached egg in the center" class="rounded-full object-cover w-full h-auto" src="https://storage.googleapis.com/a1aa/image/vkINFwaQ09YoBhjUmflRu7aa3hYcxNZntB8PQ2nfXceaEKnnA.jpg" />
+      </div>
+      
+      <!-- Text Section -->
+      <div class="ml-0 lg:ml-10 text-center lg:text-left">
+        <h2 class="text-2xl font-bold text-white mb-4">Discover Your Next Culinary Adventure</h2>
+        <p class="text-white text-lg mb-6">Search for your favorite dish and get personalized recipe suggestions.</p>
+        <div>
+          <a href="{% url 'recipeSuggestion' %}" class="bg-green-500 text-white px-6 py-2 rounded-full hover:bg-green-700 transition-all duration-300">Find Your Recipe</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+      
+
+
+<section class="improved-section">
+  <div class="container mx-auto px-8 py-12">
+    <h1 class="text-4xl font-bold text-center mb-8">Nourish Your Body, Nourish Your Life</h1>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+      <div class="item bg-white rounded-lg shadow-md overflow-hidden">
+        <img alt="A bowl of fresh fruits and vegetables" class="w-full h-48 object-cover" height="400" src="https://storage.googleapis.com/a1aa/image/0sleXBEoqs0oXK5zqe8BuYfewGhcXixfZYXe4UzciVZ4m618E.jpg" width="600" />
+        <div class="p-4">
+          <h2 class="text-xl font-bold mb-2">Fruits & Vegetables</h2>
+          <p class="text-gray-600 mb-4">
+            Packed with vitamins, minerals, and antioxidants, fruits and vegetables are essential for overall health.
+          </p>
+          <p class="text-lg font-bold text-gray-800">
+            Vitamins, Minerals
+          </p>
+        </div>
+      </div>
+
+      <div class="item bg-white rounded-lg shadow-md overflow-hidden">
+        <img alt="A bowl of grains and seeds" class="w-full h-48 object-cover" height="400" src="https://storage.googleapis.com/a1aa/image/sT9dnWHLKIoCPlYReu74eQl1QSLM1hVSOnDd4p3Ihz6eUvmnA.jpg" width="600" />
+        <div class="p-4">
+          <h2 class="text-xl font-bold mb-2">Whole Grains</h2>
+          <p class="text-gray-600 mb-4">
+            Whole grains provide complex carbohydrates, fiber, and essential nutrients.
+          </p>
+          <p class="text-lg font-bold text-gray-800">
+            Fiber, Carbohydrates
+          </p>
+        </div>
+      </div>
+
+      <div class="item bg-white rounded-lg shadow-md overflow-hidden">
+        <img alt="A bowl of dairy products" class="w-full h-48 object-cover" height="400" src="https://storage.googleapis.com/a1aa/image/vFmmg40NUy4XLBff1vAWCjBWhOXMAe6B4o9asDXvaAlzUvmnA.jpg" width="600" />
+        <div class="p-4">
+          <h2 class="text-xl font-bold mb-2">Dairy Products</h2>
+          <p class="text-gray-600 mb-4">
+            Dairy products are a great source of calcium and protein for strong bones and muscles.
+          </p>
+          <p class="text-lg font-bold text-gray-800">
+            Calcium, Protein
+          </p>
+        </div>
+      </div>
+
+      <div class="item bg-white rounded-lg shadow-md overflow-hidden">
+        <img alt="A bowl of nuts and seeds" class="w-full h-48 object-cover" height="400" src="https://storage.googleapis.com/a1aa/image/pCJKOEBFuGJVMdmHtZGLhVyQApb9KItUUCu6jVqPPZQn618E.jpg" width="600" />
+        <div class="p-4">
+          <h2 class="text-xl font-bold mb-2">Nuts & Seeds</h2>
+          <p class="text-gray-600 mb-4">
+            Nuts and seeds are packed with healthy fats, protein, and fiber.
+          </p>
+          <p class="text-lg font-bold text-gray-800">
+            Healthy Fats, Fiber
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+
+       
+       {% comment %} FAQ Section {% endcomment %}
+       <section class="dark:bg-white">
+
+        <div class="py-8 px-4 mx-auto max-w-screen-xl sm:py-16 lg:px-6">
+            <h2 class="mb-8 text-4xl tracking-tight font-extrabold text-orange-600">Frequently asked questions</h2>
+    
+            <div class="grid pt-8 text-left border-t border-gray-200 md:gap-16 dark:border-gray-700 md:grid-cols-2">
+    
+                <div>
+                    <div class="mb-10">
+                        <h3 class="flex items-center mb-4 text-lg font-medium text-black">
+                            <svg class="flex-shrink-0 mr-2 w-5 h-5 text-gray-500 dark:text-gray-400" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"></path></svg>
+                            What is NutriVision?
+                        </h3>
+                        <p class="text-gray-600">Nutri Vision is a web application that helps users find out the calorie content and nutritional information of a dish by uploading a photo. It also provides detailed recipes and cooking instructions, making it easy for users to understand the nutritional aspects of their meals and find recipes for similar dishes.</p>
+                    </div>
+    
+                    <div class="mb-10">
+                        <h3 class="flex items-center mb-4 text-lg font-medium text-black">
+                            <svg class="flex-shrink-0 mr-2 w-5 h-5 text-gray-500 dark:text-gray-400" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"></path></svg>
+                            Is NutriVision a free calorie tracker app?
+                        </h3>
+                        <p class="text-gray-600">Yes, Nutri Vision can be described as a free calorie tracker app. It allows users to upload photos of their meals to instantly receive information about the calorie content and nutritional details of the dishes. The app also provides recipes and cooking instructions, enhancing its utility as a dietary tool.</p>
+                    </div>
+    
+                    <div class="mb-10">
+                        <h3 class="flex items-center mb-4 text-lg font-medium text-black">
+                            <svg class="flex-shrink-0 mr-2 w-5 h-5 text-gray-500 dark:text-gray-400" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"></path></svg>
+                            What steps should I follow to get the nutrition data?
+                        </h3>
+                        <p class="text-gray-600">To get nutrition data using Nutri Vision, simply open the app and upload a photo of the dish you want to analyze. The app will then process the image and provide you with detailed nutritional information, including calorie content. Additionally, you can explore recipes and cooking instructions related to the dish.</p>
+                        <p class="text-gray-600">Feel free to <a href="#" class="font-medium underline text-primary-600 hover:no-underline" target="_blank" rel="noreferrer">contact us</a> and we'll help you out as soon as we can.</p>
+                    </div>
+                </div>
+    
+                <div>
+                    <div class="mb-10">
+                        <h3 class="flex items-center mb-4 text-lg font-medium text-black">
+                            <svg class="flex-shrink-0 mr-2 w-5 h-5 text-gray-500 dark:text-gray-400" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"></path></svg>
+                            What nutrition data can I track besides calories?
+                        </h3>
+                        <p class="text-gray-600">Besides tracking calories, Nutri Vision can also provide information on protein, carbohydrates, fats, vitamins, minerals, and sodium. This helps you get a complete picture of the nutritional content of your dish.</p>
+                    </div>
+    
+                    <div class="mb-10">
+                        <h3 class="flex items-center mb-4 text-lg font-medium text-black">
+                            <svg class="flex-shrink-0 mr-2 w-5 h-5 text-gray-500 dark:text-gray-400" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"></path></svg>
+                            Can I save my favourite recipes and nutrition?
+                        </h3>
+                        <p class="text-gray-600">Yes, Nutri Vision allows you to save your favorite recipes. Once you find a recipe you like, you can save it within the app for easy access later.</p>
+                    </div>
+    
+                    <div class="mb-10">
+                        <h3 class="flex items-center mb-4 text-lg font-medium text-black">
+                            <svg class="flex-shrink-0 mr-2 w-5 h-5 text-gray-500 dark:text-gray-400" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"></path></svg>
+                            Do I need to create an account to use Nutri Vision?
+                        </h3>
+                        <p class="text-gray-600">No, creating an account is not required to use the basic features of Nutri Vision. However, signing up may unlock additional features and allow you to save your preferences and favorite recipes.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <br/>
+
+    <section class="improved-section bg-gray-800 flex items-center justify-center py-16 px-8">
+  <div class="flex flex-col md:flex-row items-center text-white w-full max-w-screen-xl">
+    <!-- Text Section -->
+    <div class="md:w-1/2 mb-8 md:mb-0 text-center md:text-left">
+      <h1 class="text-3xl font-bold mb-4">Connect with Us</h1>
+      <p class="text-lg mb-4">We're here to support your journey towards optimal health.</p>
+      <p class="text-lg">Contact Us Today</p>
+    </div>
+    
+    <!-- Image Section -->
+    <div class="w-full md:w-1/3 lg:w-1/4">
+      <img alt="A plate with a variety of healthy foods" class="rounded object-cover w-full h-auto" src="https://storage.googleapis.com/a1aa/image/cQ1afvWkfqnStkyKs4x4qcfJnfWwZm2uRjgyI8GQP0YgyzNPB.jpg" />
+    </div>
+  </div>
+</section>
+
+
+      <script>
+        const quotes = [
+        {
+            text: "Let food be thy medicine and medicine be thy food.",
+            author: "Hippocrates"
+        },
+        {
+            text: "The only way to keep your health is to eat what you don't want, drink what you don't like, and do what you'd rather not.",
+            author: "Mark Twain"
+        },
+        {
+            text: "Tell me what you eat, and I will tell you what you are.",
+            author: "Anthelme Brillat-Savarin"
+        },
+        {
+            text: "Your diet is a bank account. Good food choices are good investments.",
+            author: "Bethenny Frankel"
+        },
+        {
+            text: "The food you eat can be either the safest and most powerful form of medicine or the slowest form of poison.",
+            author: "Ann Wigmore"
+        },
+        {
+            text: "To eat is a necessity, but to eat intelligently is an art.",
+            author: "François de La Rochefoucauld"
+        },
+        {
+            text: "The doctor of the future will no longer treat the human frame with drugs, but rather will cure and prevent disease with nutrition.",
+            author: "Thomas Edison"
+        },
+        {
+            text: "Let food be thy medicine, thy medicine shall be thy food.",
+            author: "Galen"
+        },
+        {
+            text: "The greatest wealth is health.",
+            author: "Virgil"
+        },
+        {
+            text: "Your body is a temple, but only if you treat it as one.",
+            author: "Astrid Alauda"
+        },
+        {
+            text: "Eat breakfast like a king, lunch like a prince, and dinner like a pauper.",
+            author: "Adelle Davis"
+        },
+        {
+            text: "Take care of your body. It's the only place you have to live.",
+            author: "Jim Rohn"
+        },
+        {
+            text: "A healthy outside starts from the inside.",
+            author: "Robert Urich"
+        }
+    ];
+
+    let currentQuoteIndex = 0;
+
+    function showQuote() {
+        const quote = quotes[currentQuoteIndex];
+        document.getElementById("quoteText").textContent = `"${quote.text}"`;
+        document.getElementById("authorText").textContent = `- ${quote.author}`;
+
+        currentQuoteIndex = (currentQuoteIndex + 1) % quotes.length;
+    }
+
+    function startScrolling() {
+        showQuote();
+        const quoteContainer = document.getElementById("quoteContainer");
+        const width = quoteContainer.offsetWidth;
+        quoteContainer.style.transform = `translateX(${width}px)`;
+        setTimeout(() => {
+            quoteContainer.style.transition = 'none';
+            quoteContainer.style.transform = `translateX(-100%)`;
+            setTimeout(() => {
+                quoteContainer.style.transition = 'transform 10s linear';
+                startScrolling();
+            }, 1000); // Small delay to reset transition
+        }, 10000); // Show each quote for 10 seconds
+    }
+
+    window.onload = startScrolling; 
+
+
+
+
+    
+    const faq = [
+    // Greetings and General Chat
+    { question: "Hi", answer: "Hello! How can I help you with your nutrition and fitness queries today?" },
+    { question: "Hello", answer: "Hello! How can I help you with your nutrition and fitness queries today?" },
+    { question: "How are you?", answer: "I'm just a bot, but I'm here to help! How can I assist you today?" },
+  
+    // Balanced Diet
+    { question: "What is a balanced diet?", answer: "A balanced diet includes a variety of foods in the right proportions, providing all nutrients your body needs to function properly." },
+    { question: "How do I maintain a balanced diet?", answer: "A balanced diet includes a variety of foods in the right proportions, providing all nutrients your body needs to function properly." },
+    { question: "What should I eat for a healthy lifestyle?", answer: "A balanced diet includes a variety of foods in the right proportions, providing all nutrients your body needs to function properly." },
+  
+    // Water Intake
+    { question: "How much water should I drink daily?", answer: "It's recommended to drink at least 8 glasses (2 liters) of water a day, but this can vary based on activity and climate." },
+    { question: "What is the recommended daily water intake?", answer: "It's recommended to drink at least 8 glasses (2 liters) of water a day, but this can vary based on activity and climate." },
+    { question: "How can I stay hydrated?", answer: "It's recommended to drink at least 8 glasses (2 liters) of water a day, but this can vary based on activity and climate." },
+  
+    // Protein Sources
+    { question: "What are good sources of protein?", answer: "Good sources of protein include eggs, chicken, fish, beans, lentils, tofu, and nuts." },
+    { question: "Where can I get protein from?", answer: "Good sources of protein include eggs, chicken, fish, beans, lentils, tofu, and nuts." },
+    { question: "Can you suggest protein-rich foods?", answer: "Good sources of protein include eggs, chicken, fish, beans, lentils, tofu, and nuts." },
+  
+    // BMI
+    { question: "What is BMI?", answer: "BMI (Body Mass Index) is a measure that uses your height and weight to estimate if you're underweight, normal weight, overweight, or obese." },
+    { question: "How is BMI calculated?", answer: "BMI (Body Mass Index) is a measure that uses your height and weight to estimate if you're underweight, normal weight, overweight, or obese." },
+    { question: "What does BMI mean?", answer: "BMI (Body Mass Index) is a measure that uses your height and weight to estimate if you're underweight, normal weight, overweight, or obese." },
+  
+    // Calories
+    { question: "How many calories do I need per day?", answer: "Calorie needs vary based on age, gender, and activity level. On average, adults require 2000–2500 calories per day." },
+    { question: "What is the daily calorie requirement?", answer: "Calorie needs vary based on age, gender, and activity level. On average, adults require 2000–2500 calories per day." },
+    { question: "How can I calculate my calorie needs?", answer: "Calorie needs vary based on age, gender, and activity level. On average, adults require 2000–2500 calories per day." },
+  
+    // Antioxidants
+    { question: "What are antioxidants?", answer: "Antioxidants protect your cells from damage caused by free radicals. Foods like berries, nuts, and spinach are rich in antioxidants." },
+    { question: "Why are antioxidants important?", answer: "Antioxidants protect your cells from damage caused by free radicals. Foods like berries, nuts, and spinach are rich in antioxidants." },
+    { question: "Which foods have antioxidants?", answer: "Antioxidants protect your cells from damage caused by free radicals. Foods like berries, nuts, and spinach are rich in antioxidants." },
+  
+    // Breakfast
+    { question: "Why is breakfast important?", answer: "Breakfast kick-starts your metabolism, provides energy for the day, and prevents overeating later." },
+    { question: "Should I eat breakfast?", answer: "Breakfast kick-starts your metabolism, provides energy for the day, and prevents overeating later." },
+    { question: "What happens if I skip breakfast?", answer: "Breakfast kick-starts your metabolism, provides energy for the day, and prevents overeating later." },
+  
+    // Additional Topics
+    { question: "What are healthy fats?", answer: "Healthy fats include unsaturated fats found in olive oil, avocado, nuts, and fish. Avoid trans fats and limit saturated fats." },
+    { question: "How much sleep do I need?", answer: "Adults typically need 7-9 hours of sleep per night for optimal health and performance." },
+    { question: "What is metabolism?", answer: "Metabolism refers to all the chemical processes in your body that keep you alive and active. A higher metabolism means your body burns more calories." },
+  
+    // More Basic Questions
+    { question: "Tell me a joke", answer: "Why did the tomato turn red? Because it saw the salad dressing!" },
+    { question: "What is your name?", answer: "I'm NutriBot, your nutrition and fitness assistant!" },
+    { question: "Who created you?", answer: "I was created to help answer your questions about nutrition, fitness, and healthy living!" }
+  ];
+
+    const chatbotIcon = document.getElementById("chatbot-icon");
+    const chatbot = document.getElementById("chatbot");
+    const chatBody = document.getElementById("chat-body");
+    const userInput = document.getElementById("user-input");
+    const menu = document.getElementById("menu");
+    const menuToggle1 = document.getElementById("menu-toggle1");
+    const menuList = document.getElementById("menu-list");
+    const cancelButton = document.getElementById("cancel-button");
+
+    // Show chatbot on icon click
+    chatbotIcon.addEventListener("click", () => {
+      chatbot.style.display = "flex";
+      chatbotIcon.style.display = "none";
+    });
+
+    // Close chatbot on cancel button click
+    cancelButton.addEventListener("click", () => {
+      chatbot.style.display = "none";
+      chatbotIcon.style.display = "flex";
+    });
+
+    // Populate menu with questions
+    faq.forEach(item => {
+      const li = document.createElement("li");
+      li.textContent = item.question;
+      li.addEventListener("click", () => {
+        userInput.value = item.question;
+        chatBody.innerHTML = ""; // Clear previous answer
+        menu.classList.remove("active"); // Hide menu
+      });
+      menuList.appendChild(li);
+    });
+    
+
+    // Toggle menu visibility
+    menuToggle1.addEventListener("click", () => {
+      menu.classList.toggle("active");
+    });
+
+    userInput.addEventListener("keypress", (e) => {
+      if (e.key === "Enter" && userInput.value.trim() !== "") {
+        const userMessage = userInput.value.trim();
+        addMessage("You", userMessage);
+
+        const botResponse = getChatbotResponse(userMessage);
+        addMessage("NutriBot", botResponse);
+
+        userInput.value = "";
+      }
+    });
+
+    // Handle user input and display response
+    function handleUserInput() {
+      const userText = userInput.value.toLowerCase();
+      const match = faq.find(item => userText.includes(item.question.toLowerCase()));
+      const response = match ? match.answer : "I'm sorry, I don't understand. Can you rephrase?";
+      chatBody.innerHTML = `<div>${response}</div>`;
+      userInput.value = ""; // Clear input
+    }
+    </script>
+
+</body>
+</html>
+
+{% endblock %} 

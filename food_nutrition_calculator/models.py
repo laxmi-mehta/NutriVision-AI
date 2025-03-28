@@ -1,0 +1,2 @@
+from djongo import models
+

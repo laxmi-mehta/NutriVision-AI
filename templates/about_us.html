@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Food Experience Forum - About Us</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body>
+  <section class="bg-gray-100 py-16 px-8">
+    <div class="container mx-auto flex flex-col md:flex-row items-center justify-center">
+      <div class="md:w-1/2 md:mr-10">
+        <h2 class="text-3xl font-bold text-orange-500 mb-4 animate-pulse">About Us</h2>
+        <p class="text-lg leading-relaxed mb-6">
+          NutriVision is a cutting-edge web application designed to revolutionize the way you approach nutrition. Our platform empowers users to make informed food choices by providing real-time nutritional analysis, personalized recipe suggestions, and a supportive community. Through advanced machine learning algorithms, we break down complex nutritional information into easy-to-understand insights. Join us on a journey to a healthier lifestyle, one meal at a time.
+        </p>
+        <p class="text-lg mb-6">
+          **Key features include:**
+          <ul class="list-disc ml-6">
+            <li>Real-time food nutrition analysis</li>
+            <li>Personalized recipe suggestions</li>
+            <li>Engaging community forum</li>
+            <li>Inspirational health and food quotes</li>
+            <li>Up-to-date health and food news</li>
+          </ul>
+        </p>
+        <a href="/" class="bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 px-4 rounded">Learn More</a>
+      </div>
+      <div class="md:w-1/4">
+        <img src="{% static 'img/project-logo-food.png' %}" alt="About Us Image" class="w-full rounded-lg shadow-md animate-pulse">
+      </div>
+    </div>
+  </section>
+</body>
+</html>
+{% endblock %}

@@ -1,0 +1,67 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body>
+<section id="home">
+    <header>
+        <nav class="bg-orange-500 border-gray-200 px-4 lg:px-6 py-2.5">
+            <div class="flex flex-wrap justify-between items-center mx-auto max-w-screen-xl">
+                <!-- Logo Section -->
+                <a href="/" class="flex items-center">
+                    <span class="self-center text-xl font-semibold whitespace-nowrap text-black hover:text-white">
+                        NutriVision
+                    </span>
+                </a>
+
+                <!-- Mobile Menu Button -->
+                <button id="menu-toggle" 
+                    class="inline-flex items-center p-2 w-10 h-10 justify-center text-black rounded-lg lg:hidden hover:bg-orange-400 focus:outline-none focus:ring-2 focus:ring-gray-200">
+                    <span class="sr-only">Open main menu</span>
+                    <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
+                    </svg>
+                </button>
+
+                <!-- Main Menu -->
+                <div id="mobile-menu" class="hidden w-full lg:flex lg:w-auto lg:order-1">
+                    <ul class="flex flex-col mt-4 font-medium lg:flex-row lg:space-x-4 lg:mt-0">
+                        <li><a href="/" class="block py-2 pr-4 pl-3 text-black lg:text-white hover:text-white hover:bg-black lg:hover:bg-transparent">Home</a></li>
+                        <li><a href="{% url 'aboutUs' %}" class="block py-2 pr-4 pl-3 text-black lg:text-white hover:text-white hover:bg-black lg:hover:bg-transparent">About</a></li>
+                        <li><a href="{% url 'recipeSuggestion' %}" class="block py-2 pr-4 pl-3 text-black lg:text-white hover:text-white hover:bg-black lg:hover:bg-transparent">Recipe Suggestion</a></li>
+                        <li><a href="{% url 'scan_barcode' %}" class="block py-2 pr-4 pl-3 text-black lg:text-white hover:text-white hover:bg-black lg:hover:bg-transparent">Barcode Scanning</a></li>
+                       
+                       <li><a href="{% url 'create_post' %}" class="block py-2 pr-4 pl-3 text-black lg:text-white hover:text-white hover:bg-black lg:hover:bg-transparent">Community Forum</a></li>
+                       
+                    </ul>
+                </div>
+
+                <!-- Buttons Section -->
+                <div class="flex items-center space-x-4">
+                    <a href="{% url 'input_user_details' %}" class="px-4 py-2 text-white bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg shadow-md hover:shadow-lg hover:from-purple-500 hover:to-blue-500">Know You Better</a>
+                    {% if user.is_authenticated %}
+                    <a href="{% url 'logout' %}" class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600">
+                        Logout
+                    </a>    
+                    <a href="{% url 'dashboard' %}" class="px-4 py-2 text-white bg-gradient-to-r from-green-500 to-teal-500 rounded-lg shadow-md hover:shadow-lg hover:from-teal-500 hover:to-green-500">Welcome, {{ user.username }}</a>
+                    {% else %}
+                        <a href="{% url 'login' %}" class="px-4 py-2 text-white bg-gradient-to-r from-red-500 to-pink-500 rounded-lg shadow-md hover:shadow-lg hover:from-pink-500 hover:to-red-500">Login</a>
+                    {% endif %}
+                </div>
+            </div>
+        </nav>
+    </header>
+</section>
+
+<script>
+    // Toggle the mobile menu visibility
+    document.getElementById('menu-toggle').addEventListener('click', () => {
+        const menu = document.getElementById('mobile-menu');
+        menu.classList.toggle('hidden');
+    });
+</script>
+</body>
+</html>

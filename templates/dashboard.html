@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<div class="bg-white p-6 rounded-lg shadow-md w-full max-w-4xl mx-auto my-8">
+    
+    {% if profile %}
+    <div class="flex flex-col items-center text-center">
+        <!-- Profile Image -->
+        <div class="mb-6">
+            <img src="{% static 'img/avatar.png' %}" alt="Profile Picture"
+                class="w-32 h-32 rounded-full border-4 border-green-500 object-cover">
+        </div>
+
+        <!-- Profile Information -->
+        <div class="text-lg text-gray-700 space-y-3">
+            <p><strong>Username:</strong> <span class="text-green-500">{{ profile.first_name }}</span></p>
+            <p><strong>Age:</strong> {{ profile.age }} years</p>
+            <p><strong>Gender:</strong> {{ profile.gender|title }}</p>
+            <p><strong>Weight:</strong> {{ profile.weight }} kg</p>
+            <p><strong>Height:</strong> {{ profile.height }} cm</p>
+            <p><strong>Activity Level:</strong> <span class="font-medium text-green-500">{{ profile.activity_level|title }}</span></p>
+            <p><strong>Allergy Level:</strong> {{ profile.allergy_level|title }}</p>
+        </div>
+        
+        <div class="mt-8">
+            <a href="{% url 'input_user_details' %}" class="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-all duration-300">
+                Edit Profile
+            </a>
+        </div>
+    </div>
+
+    <!-- Uploaded Images Section -->
+    <div class="mt-12">
+        <h2 class="text-2xl font-semibold text-gray-800 mb-4">Uploaded Images</h2>
+        {% if uploaded_images %}
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {% for image in uploaded_images %}
+            <div class="bg-gray-100 p-4 rounded-lg shadow-md">
+                <img src="{{ image.image.url }}" alt="Uploaded Image" class="w-full h-48 object-cover rounded">
+                <div class="mt-2 text-center">
+                    <p class="text-sm text-gray-600"><strong>Uploaded on:</strong> {{ image.uploaded_at|date:"F j, Y" }}</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <p class="text-gray-500">No uploaded images found.</p>
+        {% endif %}
+    </div>
+
+    {% else %}
+    <div class="text-center text-red-500">
+        <h1 class="text-2xl font-bold">No profile found</h1>
+        <p>Please complete your profile information.</p>
+        <a href="{% url 'input_user_details' %}" class="text-blue-500 hover:underline">Go to Profile Setup</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

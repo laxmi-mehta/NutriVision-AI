@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        function validateForm(event) {
+            event.preventDefault();
+
+            const username = document.forms[0]["username"].value;
+            const email = document.forms[0]["email"].value;
+            const password = document.forms[0]["password"].value;
+            const confirmPassword = document.forms[0]["confirm_password"].value;
+            const contactNumber = document.forms[0]["contact_number"].value;
+
+            const usernamePattern = /^[a-zA-Z]+$/;
+            const emailPattern = /^[a-zA-Z]+[a-zA-Z0-9]*@gmail\.com$/;
+            const strongPasswordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d])[A-Za-z\d@$!%*?&^#()_+={}\[\]:;"'<>,.?\/\\|-]{8,}$/;
+
+            if (!usernamePattern.test(username)) {
+                alert("Username can only contain letters and spaces.");
+                return false;
+            }
+
+            if (!emailPattern.test(email)) {
+                alert("Email must start with letters, optionally include numbers, and end with '@gmail.com'.");
+                return false;
+            }
+
+            if (!strongPasswordPattern.test(password)) {
+                alert("Password must be at least 8 characters long, include an uppercase letter, a lowercase letter, a number, and a special character.");
+                return false;
+            }
+
+            if (password !== confirmPassword) {
+                alert("Passwords do not match.");
+                return false;
+            }
+
+            if (contactNumber && !/^[0-9]{10}$/.test(contactNumber)) {
+                alert("Please enter a valid 10-digit contact number.");
+                return false;
+            }
+
+            document.forms[0].submit();
+        }
+    </script>
+    <title>Register</title>
+</head>
+<body class="bg-gray-100  justify-center items-center min-h-screen">
+    {% comment %} <div class="absolute top-4 left-4 container mx-auto px-4 mt-24 mb-20">
+        <a href="/" class="text-black text-lg"><i class="fas fa-home mr-2"></i>Home</a>
+    </div> {% endcomment %}
+    <div class="bg-white p-6 rounded-lg shadow-md w-full max-w-md container mx-auto px-2 mt-20 mb-17">
+        <h2 class="text-2xl font-bold text-center mb-4 text-green-500">Register</h2>
+
+        <form method="post" class="space-y-4" onsubmit="validateForm(event)">
+            {% csrf_token %}
+            <input type="text" name="username" placeholder="Username" required
+                class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
+            <input type="email" name="email" placeholder="Email" required
+                class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
+            <input type="password" name="password" placeholder="Password" required
+                class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
+            <input type="password" name="confirm_password" placeholder="Confirm Password" required
+                class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
+            <input type="text" name="contact_number" placeholder="Contact Number" 
+                class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
+            <button type="submit" 
+                class="w-full bg-green-500 text-white py-3 rounded-lg hover:bg-green-600 transition">
+                Register
+            </button>
+        </form>
+        <p class="text-sm text-center mt-4">Already have an account? 
+            <a href="{% url 'login' %}" class="text-green-500 hover:underline">Login</a>
+        </p>
+    </div>
+</body>
+</html>
+{% endblock %}
+

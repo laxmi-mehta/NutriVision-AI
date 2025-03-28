@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Interactive Chatbot</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f4f9;
+    }
+    .chatbot-icon {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      width: 60px;
+      height: 60px;
+      background-color: #4CAF50;
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      cursor: pointer;
+      font-size: 24px;
+    }
+    .chatbot {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      width: 350px;
+      background-color: #fff;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      display: none;
+      flex-direction: column;
+      overflow: hidden;
+      z-index: 10;
+    }
+    .chat-header {
+      background-color: #4CAF50;
+      color: #fff;
+      padding: 10px;
+      text-align: center;
+      font-size: 18px;
+      position: relative;
+    }
+    .chat-header .menu-toggle {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background-color: #fff;
+      color: #4CAF50;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    .chat-header .menu-toggle:hover {
+      background-color: #eaeaea;
+    }
+    .chat-body {
+      padding: 10px;
+      height: 300px;
+      overflow-y: auto;
+    }
+    .chat-input {
+      display: flex;
+      border-top: 1px solid #ccc;
+    }
+    .chat-input input {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      outline: none;
+    }
+    .chat-input button {
+      background-color: #4CAF50;
+      color: #fff;
+      border: none;
+      padding: 10px 15px;
+      cursor: pointer;
+    }
+    .chat-input button:hover {
+      background-color: #45a049;
+    }
+    .menu {
+      display: none;
+      background-color: #f4f4f9;
+      border-top: 1px solid #ccc;
+      padding: 10px;
+      height: 300px;
+      overflow-y: auto;
+    }
+    .menu.active {
+      display: block;
+    }
+    .menu h3 {
+      margin-top: 0;
+      font-size: 16px;
+      text-align: center;
+    }
+    .menu ul {
+      list-style: none;
+      padding: 0;
+    }
+    .menu ul li {
+      padding: 8px 10px;
+      cursor: pointer;
+      border-bottom: 1px solid #ccc;
+    }
+    .menu ul li:hover {
+      background-color: #eaeaea;
+    }
+  </style>
+</head>
+<body>
+  <div class="chatbot-icon" id="chatbot-icon">💬</div>
+  <div class="chatbot" id="chatbot">
+    <div class="chat-header">
+      NutriBot
+      <button class="menu-toggle" id="menu-toggle">Menu</button>
+    </div>
+    <div class="chat-body" id="chat-body">
+      <div>Hi! I'm NutriBot. How can I assist you today?</div>
+    </div>
+    <div class="chat-input">
+      <input type="text" id="user-input" placeholder="Type your question here...">
+      <button onclick="handleUserInput()">Send</button>
+    </div>
+    <div class="menu" id="menu">
+      <h3>Frequently Asked Questions</h3>
+      <ul id="menu-list"></ul>
+    </div>
+  </div>
+  <script>
+    const faq = [
+    // Greetings and General Chat
+    { question: "Hi", answer: "Hello! How can I help you with your nutrition and fitness queries today?" },
+    { question: "Hello", answer: "Hello! How can I help you with your nutrition and fitness queries today?" },
+    { question: "How are you?", answer: "I'm just a bot, but I'm here to help! How can I assist you today?" },
+  
+    // Balanced Diet
+    { question: "What is a balanced diet?", answer: "A balanced diet includes a variety of foods in the right proportions, providing all nutrients your body needs to function properly." },
+    { question: "How do I maintain a balanced diet?", answer: "A balanced diet includes a variety of foods in the right proportions, providing all nutrients your body needs to function properly." },
+    { question: "What should I eat for a healthy lifestyle?", answer: "A balanced diet includes a variety of foods in the right proportions, providing all nutrients your body needs to function properly." },
+  
+    // Water Intake
+    { question: "How much water should I drink daily?", answer: "It's recommended to drink at least 8 glasses (2 liters) of water a day, but this can vary based on activity and climate." },
+    { question: "What is the recommended daily water intake?", answer: "It's recommended to drink at least 8 glasses (2 liters) of water a day, but this can vary based on activity and climate." },
+    { question: "How can I stay hydrated?", answer: "It's recommended to drink at least 8 glasses (2 liters) of water a day, but this can vary based on activity and climate." },
+  
+    // Protein Sources
+    { question: "What are good sources of protein?", answer: "Good sources of protein include eggs, chicken, fish, beans, lentils, tofu, and nuts." },
+    { question: "Where can I get protein from?", answer: "Good sources of protein include eggs, chicken, fish, beans, lentils, tofu, and nuts." },
+    { question: "Can you suggest protein-rich foods?", answer: "Good sources of protein include eggs, chicken, fish, beans, lentils, tofu, and nuts." },
+  
+    // BMI
+    { question: "What is BMI?", answer: "BMI (Body Mass Index) is a measure that uses your height and weight to estimate if you're underweight, normal weight, overweight, or obese." },
+    { question: "How is BMI calculated?", answer: "BMI (Body Mass Index) is a measure that uses your height and weight to estimate if you're underweight, normal weight, overweight, or obese." },
+    { question: "What does BMI mean?", answer: "BMI (Body Mass Index) is a measure that uses your height and weight to estimate if you're underweight, normal weight, overweight, or obese." },
+  
+    // Calories
+    { question: "How many calories do I need per day?", answer: "Calorie needs vary based on age, gender, and activity level. On average, adults require 2000–2500 calories per day." },
+    { question: "What is the daily calorie requirement?", answer: "Calorie needs vary based on age, gender, and activity level. On average, adults require 2000–2500 calories per day." },
+    { question: "How can I calculate my calorie needs?", answer: "Calorie needs vary based on age, gender, and activity level. On average, adults require 2000–2500 calories per day." },
+  
+    // Antioxidants
+    { question: "What are antioxidants?", answer: "Antioxidants protect your cells from damage caused by free radicals. Foods like berries, nuts, and spinach are rich in antioxidants." },
+    { question: "Why are antioxidants important?", answer: "Antioxidants protect your cells from damage caused by free radicals. Foods like berries, nuts, and spinach are rich in antioxidants." },
+    { question: "Which foods have antioxidants?", answer: "Antioxidants protect your cells from damage caused by free radicals. Foods like berries, nuts, and spinach are rich in antioxidants." },
+  
+    // Breakfast
+    { question: "Why is breakfast important?", answer: "Breakfast kick-starts your metabolism, provides energy for the day, and prevents overeating later." },
+    { question: "Should I eat breakfast?", answer: "Breakfast kick-starts your metabolism, provides energy for the day, and prevents overeating later." },
+    { question: "What happens if I skip breakfast?", answer: "Breakfast kick-starts your metabolism, provides energy for the day, and prevents overeating later." },
+  
+    // Additional Topics
+    { question: "What are healthy fats?", answer: "Healthy fats include unsaturated fats found in olive oil, avocado, nuts, and fish. Avoid trans fats and limit saturated fats." },
+    { question: "How much sleep do I need?", answer: "Adults typically need 7-9 hours of sleep per night for optimal health and performance." },
+    { question: "What is metabolism?", answer: "Metabolism refers to all the chemical processes in your body that keep you alive and active. A higher metabolism means your body burns more calories." },
+  
+    // More Basic Questions
+    { question: "Tell me a joke", answer: "Why did the tomato turn red? Because it saw the salad dressing!" },
+    { question: "What is your name?", answer: "I'm NutriBot, your nutrition and fitness assistant!" },
+    { question: "Who created you?", answer: "I was created to help answer your questions about nutrition, fitness, and healthy living!" }
+  ];
+
+    const chatbotIcon = document.getElementById("chatbot-icon");
+    const chatbot = document.getElementById("chatbot");
+    const chatBody = document.getElementById("chat-body");
+    const userInput = document.getElementById("user-input");
+    const menu = document.getElementById("menu");
+    const menuToggle = document.getElementById("menu-toggle");
+    const menuList = document.getElementById("menu-list");
+
+    // Show chatbot on icon click
+    chatbotIcon.addEventListener("click", () => {
+      chatbot.style.display = "flex";
+      chatbotIcon.style.display = "none";
+    });
+
+    // Populate menu with questions
+    faq.forEach(item => {
+      const li = document.createElement("li");
+      li.textContent = item.question;
+      li.addEventListener("click", () => {
+        userInput.value = item.question;
+        chatBody.innerHTML = ""; // Clear previous answer
+        menu.classList.remove("active"); // Hide menu
+      });
+      menuList.appendChild(li);
+    });
+    
+
+    // Toggle menu visibility
+    menuToggle.addEventListener("click", () => {
+      menu.classList.toggle("active");
+    });
+
+    userInput.addEventListener("keypress", (e) => {
+      if (e.key === "Enter" && userInput.value.trim() !== "") {
+        const userMessage = userInput.value.trim();
+        addMessage("You", userMessage);
+
+        const botResponse = getChatbotResponse(userMessage);
+        addMessage("NutriBot", botResponse);
+
+        userInput.value = "";
+      }
+    });
+
+    // Handle user input and display response
+    function handleUserInput() {
+      const userText = userInput.value.toLowerCase();
+      const match = faq.find(item => userText.includes(item.question.toLowerCase()));
+      const response = match ? match.answer : "I'm sorry, I don't understand. Can you rephrase?";
+      chatBody.innerHTML = `<div>${response}</div>`;
+      userInput.value = ""; // Clear input
+    }
+  </script>
+</body>
+</html>
+
+
+

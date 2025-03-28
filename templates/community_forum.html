@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<html>
+<head>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen">
+
+    <div class="absolute top-4 left-4">
+        <a href="/" class="text-black text-lg"><i class="fas fa-home mr-2"></i>Home</a>
+    </div>
+
+    <!-- Main Content -->
+    <div class="container mx-auto p-6">
+        <!-- Post Creation Form -->
+        {% if user.is_authenticated %}
+        <div class="bg-white p-6 rounded-lg shadow-lg mb-6">
+            <h2 class="text-2xl font-bold mb-4">Create a Post</h2>
+            <form method="POST" enctype="multipart/form-data" action="{% url 'create_post' %}">
+                {% csrf_token %}
+                <input type="text" name="title" placeholder="Post Title" class="w-full p-3 mb-4 border rounded-lg" required>
+                <textarea name="content" placeholder="What’s on your mind?" class="w-full p-3 mb-4 border rounded-lg" required></textarea>
+                <input type="file" name="image" class="w-full mb-4 text-gray-700">
+                <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg">Post</button>
+            </form>
+        </div>
+        {% else %}
+        <p class="text-red-500 font-bold mb-6">You must be logged in to create a post.</p>
+        {% endif %}
+
+        <!-- Display Posts -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for post in posts %}
+            <div class="bg-white p-6 rounded-lg shadow-lg">
+                <h2 class="text-2xl font-bold text-gray-800 mb-2">{{ post.title }}</h2>
+                <p class="text-gray-600 mb-4">{{ post.content }}</p>
+
+                {% if post.image_url %}
+                <div class="mb-4">
+                    <img src="{{ post.image_url }}" alt="Image for {{ post.title }}" class="w-full h-64 object-cover rounded-lg shadow-md">
+                </div>
+                {% endif %}
+                
+                <p class="text-sm text-gray-500 mb-4">Posted on {{ post.created_at }}</p>
+
+                <!-- Edit and Delete Buttons -->
+                <div class="flex justify-between items-center">
+                    <div class="flex space-x-2">
+                        <a href="{% url 'update_post' post.id %}" class="bg-yellow-500 hover:bg-yellow-600 text-white py-2 px-4 rounded-lg">Edit</a>
+                        <form method="POST" action="{% url 'delete_post' post.id %}">
+                            {% csrf_token %}
+                            <button type="submit" class="bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded-lg">Delete</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+</body>
+</html>
+{% endblock %}

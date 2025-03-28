@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nearby Restaurants & Hotels</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-100 font-sans">
+
+    <!-- Main Content Section -->
+    <div class="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+        <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-lg">
+            <h1 class="text-3xl font-semibold text-green-500 mb-6 text-center">Find Nearby Places</h1>
+
+            <!-- Input Group for ZIP code -->
+            <div class="mb-6">
+                <label for="zipCodeInput" class="block text-lg font-medium text-gray-700">Enter ZIP Code</label>
+                <input type="text" id="zipCodeInput" placeholder="Enter ZIP code"
+                    class="w-full mt-2 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" />
+            </div>
+
+            <!-- Submit Button -->
+            <div class="flex justify-center">
+                <button id="submitButton"
+                    class="w-full sm:w-auto py-3 px-6 bg-green-500 text-white rounded-lg hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500">Find</button>
+            </div>
+
+            <!-- Map Display -->
+            <div id="mapContainer" class="mt-6">
+                <!-- Map iframe will be injected here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const zipCodeInput = document.getElementById('zipCodeInput');
+        const submitButton = document.getElementById('submitButton');
+        const mapContainer = document.getElementById('mapContainer');
+
+        submitButton.addEventListener('click', () => {
+            const zipCode = zipCodeInput.value.trim();
+
+            if (/^\d{6}$/.test(zipCode)) { // Validate ZIP code
+                mapContainer.innerHTML = `<iframe src="https://maps.google.com/maps?q=restaurants+and+hotels+near+${zipCode}&t=&z=13&ie=UTF8&iwloc=&output=embed" allowfullscreen class="w-full h-80 rounded-lg shadow-lg"></iframe>`;
+            } else {
+                mapContainer.innerHTML = '<p class="text-red-500 text-center">Please enter a valid 6-digit ZIP code.</p>';
+            }
+        });
+    </script>
+</body>
+
+</html>
+{% endblock %}
