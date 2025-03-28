@@ -20,7 +20,18 @@ NutriVision is an AI-powered **Food Nutritional Analysis System** that helps use
 | **Tailwind CSS** | Styling |
 
 ---
+## **Machine Learning Model & Dataset**  
 
+### **ML Model**  
+NutriVision uses **Deep Learning** for food recognition and nutritional estimation.  
+- **Model Used:** Convolutional Neural Networks (CNNs)  
+- **Frameworks:** TensorFlow, Keras, OpenCV  
+- **Pre-Trained Models:** InceptionV3 Model
+
+### **Dataset Used**  
+NutriVision is trained using datasets to ensure high accuracy in food detection:  
+ **India Food-20 Dataset** 📌 
+   
 ## **Features**  
 
 ### 1️⃣ **User Authentication**  
